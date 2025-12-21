@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 import { NextFunction, Request, Response } from 'express';
 import { Error as MongooseError } from 'mongoose';
 import Product, { IProduct } from '../models/product';
@@ -13,7 +12,7 @@ export const getProducts = async (
 ) => {
   try {
     const products = await Product.find();
-    res.status(200).send({ items: products, total: products.length });
+    return res.status(200).send({ items: products, total: products.length });
   } catch (error) {
     return next(error);
   }
@@ -32,7 +31,7 @@ export const createProduct = async (
       );
     }
     const newProduct = await Product.create(product);
-    res.status(201).send(newProduct);
+    return res.status(201).send(newProduct);
   } catch (error) {
     if (error instanceof MongooseError.ValidationError) {
       return next(new BadRequestError('Ошибка валидации'));
@@ -59,7 +58,7 @@ export const updateProduct = async (
     if (!updatedProduct) {
       return next(new BadRequestError('Нет товара по заданному id'));
     }
-    res.status(200).send(updatedProduct);
+    return res.status(200).send(updatedProduct);
   } catch (error) {
     if (error instanceof MongooseError.ValidationError) {
       return next(new BadRequestError('Передан не валидный ID товара'));
@@ -82,7 +81,7 @@ export const deleteProduct = async (
     if (!deletedProduct) {
       return next(new NotFoundError('Нет товара по заданному id'));
     }
-    res.status(200).send(deletedProduct);
+    return res.status(200).send(deletedProduct);
   } catch (error) {
     if (error instanceof MongooseError.ValidationError) {
       return next(new BadRequestError('Передан не валидный ID товара'));

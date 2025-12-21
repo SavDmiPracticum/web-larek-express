@@ -52,7 +52,7 @@ export const registerUser = async (
       path: '/',
     });
 
-    res.status(201).send({
+    return res.status(201).send({
       success: true,
       user: { name: user.name, email: user.email, id: user._id },
       accessToken,
@@ -60,6 +60,7 @@ export const registerUser = async (
   } catch (error) {
     next(error);
   }
+  return null;
 };
 
 export const loginUser = async (
@@ -101,7 +102,7 @@ export const loginUser = async (
       path: '/',
     });
 
-    res.status(200).send({
+    return res.status(200).send({
       user: {
         email: user.email,
         name: user.name,
@@ -112,6 +113,7 @@ export const loginUser = async (
   } catch (error) {
     next(error);
   }
+  return null;
 };
 
 export const logoutUser = async (
@@ -140,10 +142,11 @@ export const logoutUser = async (
       path: '/',
     });
 
-    res.status(200).send({ success: true });
+    return res.status(200).send({ success: true });
   } catch (error) {
     next(error);
   }
+  return null;
 };
 
 export const getCurrentUser = async (
@@ -163,13 +166,14 @@ export const getCurrentUser = async (
     if (!user) {
       return next(new NotFoundError('Пользователь не найден'));
     }
-    res.status(200).send({
+    return res.status(200).send({
       success: true,
       user: { name: user.name, email: user.email, id: user._id },
     });
   } catch (error) {
     next(error);
   }
+  return null;
 };
 
 export const refreshAccessToken = async (
@@ -213,7 +217,7 @@ export const refreshAccessToken = async (
       path: '/',
     });
 
-    res.status(200).send({
+    return res.status(200).send({
       user: {
         email: user.email,
         name: user.name,
@@ -224,4 +228,5 @@ export const refreshAccessToken = async (
   } catch (error) {
     next(error);
   }
+  return null;
 };
