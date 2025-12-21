@@ -4,6 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import path from 'path';
 import { errors } from 'celebrate';
+import cookieParser from 'cookie-parser';
 import { errorLogger, requestLogger } from './middlewares/logger';
 import { PORT, DB_ADDRESS, ORIGIN_ALLOW } from './config';
 import routes from './routes';
@@ -22,6 +23,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(requestLogger);
 

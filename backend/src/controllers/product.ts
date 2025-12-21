@@ -4,6 +4,7 @@ import { Error as MongooseError } from 'mongoose';
 import Product, { IProduct } from '../models/product';
 import BadRequestError from '../errors/bad-request-error';
 import ConflictError from '../errors/conflict-error';
+import NotFoundError from '../errors/not-found-error';
 
 export const getProducts = async (
   _req: Request,
@@ -37,7 +38,7 @@ export const createProduct = async (
       return next(new BadRequestError('Ошибка валидации'));
     }
     if (error instanceof Error && error.message.includes('E11000')) {
-      return next(new ConflictError('Товар с таким названием уже существует'));
+      return next(new ConflictError('Товар с таким заголовком уже существует'));
     }
     return next(error);
   }
@@ -56,12 +57,15 @@ export const updateProduct = async (
       runValidators: true,
     });
     if (!updatedProduct) {
-      return next(new BadRequestError('Товар не найден'));
+      return next(new BadRequestError('Нет товара по заданному id'));
     }
     res.status(200).send(updatedProduct);
   } catch (error) {
     if (error instanceof MongooseError.ValidationError) {
-      return next(new BadRequestError('Ошибка валидации'));
+      return next(new BadRequestError('Передан не валидный ID товара'));
+    }
+    if (error instanceof Error && error.message.includes('E11000')) {
+      return next(new ConflictError('Товар с таким заголовком уже существует'));
     }
     return next(error);
   }
@@ -76,10 +80,13 @@ export const deleteProduct = async (
     const { productId } = req.params;
     const deletedProduct = await Product.findByIdAndDelete(productId);
     if (!deletedProduct) {
-      return next(new BadRequestError('Товар не найден'));
+      return next(new NotFoundError('Нет товара по заданному id'));
     }
     res.status(200).send(deletedProduct);
   } catch (error) {
+    if (error instanceof MongooseError.ValidationError) {
+      return next(new BadRequestError('Передан не валидный ID товара'));
+    }
     return next(error);
   }
 };

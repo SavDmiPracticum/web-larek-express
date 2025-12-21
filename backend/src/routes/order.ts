@@ -4,6 +4,6 @@ import createOrder from '../controllers/order';
 
 const router = Router();
 
-router.post('/order', validateOrderBody, createOrder);
+router.post('/', validateOrderBody, createOrder);
 
 export default router;
