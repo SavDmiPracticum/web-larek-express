@@ -12,9 +12,10 @@ const moveImageFromTemp = (fileName: string): void => {
   if (!fileName) return;
   const fileBaseName = path.basename(fileName);
   const tempPath = path.join(UPLOAD_PATH_TEMP, fileBaseName);
-  const targetDir = path.join('public', UPLOAD_PATH, fileBaseName);
+  const targetDir = path.join(__dirname, `../public/${UPLOAD_PATH}`);
   if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
-  fs.copyFileSync(tempPath, targetDir);
+  const targetPath = path.join(targetDir, fileBaseName);
+  fs.copyFileSync(tempPath, targetPath);
   fs.unlinkSync(tempPath);
 };
 
