@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
-import ms from 'ms';
+import ms, { StringValue } from 'ms';
 import NotFoundError from '../errors/not-found-error';
 import ConflictError from '../errors/conflict-error';
 import User from '../models/user';
@@ -48,7 +48,7 @@ export const registerUser = async (
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
-      maxAge: ms('7d'),
+      maxAge: ms(AUTH_REFRESH_TOKEN_EXPIRY as StringValue),
       path: '/',
     });
 
@@ -98,7 +98,7 @@ export const loginUser = async (
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
-      maxAge: ms('7d'),
+      maxAge: ms(AUTH_REFRESH_TOKEN_EXPIRY as StringValue),
       path: '/',
     });
 
@@ -183,6 +183,7 @@ export const refreshAccessToken = async (
 ) => {
   try {
     const { refreshToken } = req.cookies || {};
+
     if (!refreshToken) {
       return next(new BadRequestError('Токен не найден'));
     }
@@ -213,7 +214,7 @@ export const refreshAccessToken = async (
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
-      maxAge: ms('7d'),
+      maxAge: ms(AUTH_REFRESH_TOKEN_EXPIRY as StringValue),
       path: '/',
     });
 

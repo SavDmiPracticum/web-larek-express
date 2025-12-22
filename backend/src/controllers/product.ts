@@ -1,9 +1,22 @@
 import { NextFunction, Request, Response } from 'express';
 import { Error as MongooseError } from 'mongoose';
-import Product, { IProduct } from '../models/product';
+import path from 'path';
+import fs from 'fs';
+import { UPLOAD_PATH_TEMP, UPLOAD_PATH } from '../config';
+import Product from '../models/product';
 import BadRequestError from '../errors/bad-request-error';
 import ConflictError from '../errors/conflict-error';
 import NotFoundError from '../errors/not-found-error';
+
+const moveImageFromTemp = (fileName: string): void => {
+  if (!fileName) return;
+  const fileBaseName = path.basename(fileName);
+  const tempPath = path.join(UPLOAD_PATH_TEMP, fileBaseName);
+  const targetDir = path.join('public', UPLOAD_PATH, fileBaseName);
+  if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+  fs.copyFileSync(tempPath, targetDir);
+  fs.unlinkSync(tempPath);
+};
 
 export const getProducts = async (
   _req: Request,
@@ -24,13 +37,16 @@ export const createProduct = async (
   next: NextFunction,
 ) => {
   try {
-    const product: IProduct = req.body;
+    const product = req.body;
     if (!product.title || !product.image) {
       return next(
         new BadRequestError('Название и изображение товара должны быть указаны'),
       );
     }
     const newProduct = await Product.create(product);
+    if (product.image && product.image.fileName) {
+      moveImageFromTemp(product.image.fileName);
+    }
     return res.status(201).send(newProduct);
   } catch (error) {
     if (error instanceof MongooseError.ValidationError) {
@@ -57,6 +73,9 @@ export const updateProduct = async (
     });
     if (!updatedProduct) {
       return next(new BadRequestError('Нет товара по заданному id'));
+    }
+    if (product.image && product.image.fileName) {
+      moveImageFromTemp(product.image);
     }
     return res.status(200).send(updatedProduct);
   } catch (error) {
