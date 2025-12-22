@@ -21,12 +21,6 @@ export const registerUser = async (
   try {
     const { name, email, password } = req.body;
 
-    if (await User.findOne({ email })) {
-      return next(
-        new ConflictError('Пользователь с таким email уже существует'),
-      );
-    }
-
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
@@ -58,6 +52,9 @@ export const registerUser = async (
       accessToken,
     });
   } catch (error) {
+    if (error instanceof Error && error.message.includes('E11000')) {
+      return next(new ConflictError('Пользователь с таким email уже существует'));
+    }
     next(error);
   }
   return null;
